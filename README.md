@@ -1,5 +1,5 @@
 # pulsara-candidate-project-api
-Back-end canditate project for Pulsara's "Full Stack Software Engineer" position.
+Back-end candidate project for Pulsara's "Full Stack Software Engineer" position.
 
 ## Setup
 
@@ -42,10 +42,140 @@ Whether the Python virtual environment is created or not, next install the depen
 ```
 pip install -r requirements.txt
 ```
+You can go back to global-only packages by deactivating the virtual environment:
+```
+source .env/bin/deactivate
+```
+It will also be deactivated when you close the terminal.
+
+## Usage
 
 ### Running
-Once the installations are complete, you can run the program by hosting a local server:
+If you created a Python virtual environment, first make sure that it's active:
+```
+source .env/bin/activate
+```
+Then you can run the API by hosting a local Flask server:
 ```
 flask run
 ```
-Then you can access the project at http://127.0.0.1:5000, such as with a browser.
+
+### Testing
+The server expects a JSON GET request, so it can't be accessed through normal means such as a browser. To get data from the server, the files "test_client.py" and "request.json" have been included. The "request.json" file includes the parameters for the API query, and the "test_client.py" will execute that query. So to get the data from the API, first make sure that the MySQL database and Flask server are both running, then open another terminal and run the client:
+```
+python3 test_client.py
+```
+Then if no errors have occured, a file named "response.json" will be created with the data from the server. For example, if the request was for the entity with ID 1:
+```
+{
+    "id": 1
+}
+```
+Then the response will have an organized collection of all relationships for that entity:
+```
+{
+    "relationships": {
+        "TRANSFER": [
+            {
+                "destination": {
+                    "id": 2,
+                    "name": "Hospital - Metro Central",
+                    "type": "HOSPITAL"
+                },
+                "patient_types": [
+                    {
+                        "contact_phone": "555-555-5555xtf1-2-1",
+                        "id": 46,
+                        "instructions": "Wait for Pulsara call for confirmation after request",
+                        "type": "STEMI"
+                    },
+                    {
+                        "contact_phone": "555-555-5555xtf1-2-2",
+                        "id": 47,
+                        "instructions": "Wait for Pulsara call for confirmation after request",
+                        "type": "STROKE"
+                    },
+                    {
+                        "contact_phone": "555-555-5555xtf1-2-3",
+                        "id": 48,
+                        "instructions": "a",
+                        "type": "GENERAL"
+                    }
+                ],
+                "source": {
+                    "id": 1,
+                    "name": "Hospital - Rural West",
+                    "type": "HOSPITAL"
+                }
+            }
+        ],
+        "TRANSPORT": [
+            {
+                "destination": {
+                    "id": 1,
+                    "name": "Hospital - Rural West",
+                    "type": "HOSPITAL"
+                },
+                "patient_types": [
+                    {
+                        "contact_phone": "555-555-5555xtp-5-1",
+                        "id": 25,
+                        "instructions": "Bring all patients to main ED bay",
+                        "type": "STEMI"
+                    },
+                    {
+                        "contact_phone": "555-555-5555xtp-5-2",
+                        "id": 26,
+                        "instructions": "Bring all patients to main ED bay",
+                        "type": "STROKE"
+                    },
+                    {
+                        "contact_phone": "555-555-5555xtp-5-3",
+                        "id": 27,
+                        "instructions": "Bring all patients to main ED bay",
+                        "type": "GENERAL"
+                    }
+                ],
+                "source": {
+                    "id": 5,
+                    "name": "EMS - West",
+                    "type": "EMS"
+                }
+            },
+            {
+                "destination": {
+                    "id": 1,
+                    "name": "Hospital - Rural West",
+                    "type": "HOSPITAL"
+                },
+                "patient_types": [
+                    {
+                        "contact_phone": "555-555-5555xtp-6-1",
+                        "id": 28,
+                        "instructions": "Bring all patients to main ED bay",
+                        "type": "STEMI"
+                    },
+                    {
+                        "contact_phone": "555-555-5555xtp-6-2",
+                        "id": 29,
+                        "instructions": "Bring all patients to main ED bay",
+                        "type": "STROKE"
+                    },
+                    {
+                        "contact_phone": "555-555-5555xtp-6-3",
+                        "id": 30,
+                        "instructions": "Bring all patients to main ED bay",
+                        "type": "GENERAL"
+                    }
+                ],
+                "source": {
+                    "id": 6,
+                    "name": "EMS - West Central",
+                    "type": "EMS"
+                }
+            }
+        ]
+    }
+}
+```
+You can test different aspects of the API by changing the arguments in "request.json".
