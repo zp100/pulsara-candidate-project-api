@@ -16,14 +16,6 @@ Back-end candidate project for Pulsara's "Full Stack Software Engineer" position
 -   Python 3.10 or later
 -   `pip` and `git`
 
-### Download
-
-Clone this GitHub repository:
-```
-git clone https://github.com/zp100/pulsara-candidate-project-api.git
-cd pulsara-candidate-project-api
-```
-
 ### Docker and MySQL
 
 Install the Docker image, then run it as a container. This will host the MySQL database locally on port 3306. The database can be connected to via the Docker container's shell:
@@ -43,6 +35,15 @@ mysql> show tables;
 
 ```
 
+### Download
+
+Clone this GitHub repository:
+```
+git clone https://github.com/zp100/pulsara-candidate-project-api.git
+cd pulsara-candidate-project-api
+```
+You can also download it as a zipped folder.
+
 ### Python
 
 Install the required Python package dependencies for this project. If you want to avoid installing these packages globally, first create a virtual environment:
@@ -56,7 +57,7 @@ pip install -r requirements.txt
 ```
 You can go back to global-only packages by deactivating the virtual environment:
 ```
-source .env/bin/deactivate
+deactivate
 ```
 It will also be deactivated when you close the terminal.
 
@@ -79,14 +80,14 @@ The server expects a JSON GET request, so it can't be accessed through normal me
 ```
 python3 test_client.py
 ```
-Then if no errors have occured, a file named "response.json" will be created with the data from the server. For example, if the request was for the entity with ID 1:
+Then if no errors have occured, a file named "response.json" will be created with the data from the server. For example, if the request was for relationships where the source is ID 1:
 ```
 {
     "id": 1,
     "associativity": "source"
 }
 ```
-Then the response will have an organized collection of all relationships for that entity:
+Then the response will have an organized collection of those relationships for that entity:
 ```
 {
     "relationships": {
@@ -135,4 +136,4 @@ The server supports the following parameters from the "request.json" file:
 -   `"relationship_types"`: List of strings. If provided, only gets relationships of this type.
 -   `"associativity"`: Either `"source"` or `"destination"`. If it's `"source"`, only gets relationships where the ID's entity is the source. If it's `"destination"`, only gets relationships where the ID's entity is the destination.
 
-Filters that are improperly formatted will be ignored.
+Tinker with the file to test out the API. Make sure that it follows JSON file syntax. Filters that are improperly formatted will be ignored.
