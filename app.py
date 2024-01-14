@@ -41,7 +41,7 @@ def root():
         return flask.jsonify(response_json), 503
 
     # Check if the ID wasn't provided in the request.
-    if 'id' not in flask.request.json:
+    if ('id' not in flask.request.json) or not (isinstance(flask.request.json['id'], int)):
         # Error.
         response_json = {
             'error': 'Invalid request JSON.',
