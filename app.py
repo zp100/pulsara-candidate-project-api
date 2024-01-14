@@ -1,8 +1,8 @@
 ##############################################################################
-#   File:   app.py
-#   Desc:   Python Flask RESTful back-end API for managing requests.
-#   Author: Zachariah Preston
-#   Date:   2024-01-11
+#   File    app.py
+#   Desc    Python Flask RESTful back-end API for managing requests.
+#   Author  Zachariah Preston
+#   Date    2024-01-11
 ##############################################################################
 
 # Import packages.
@@ -15,11 +15,11 @@ app = flask.Flask(__name__)
 
 
 ##############################################################################
-#   Func:   root
-#   Desc:   Route function for whole API.
-#   Params: None
-#   Ret:    <flask.Response>: HTTP response that contains the queried data as
-#               a JSON object, or an error message if an error occured.
+#   Func    root
+#   Desc    Route function for whole API.
+#   Params  None
+#   Return  <Response>: HTTP response that contains the queried data as a
+#               JSON object, or an error message if an error occured.
 ##############################################################################
 @app.route('/', methods=['GET'])
 def root():
@@ -48,9 +48,44 @@ def root():
         }
         return flask.jsonify(response_json), 400
 
-    # Get the ID from the request.
-    ent_id = flask.request.json['id']
+    # Execute the request, and return the data as a JSON response.
+    response_json = process_request(cur, flask.request.json)
+    return flask.jsonify(response_json)
 
+
+
+##############################################################################
+#   Func    process_request
+#   Desc    Processes a JSON request and creates a JSON response.
+#   Params  <MySQLCursor> cur: Cursor of the database connection.
+#           <dict> request_json: Request's JSON data.
+#   Ret     <dict>: Response's JSON data.
+##############################################################################
+def process_request(cur, request_json):
+    # Get the ID from the request.
+    ent_id = request_json['id']
+
+    # Get the data from the database, and organize the records into relationships.
+    records = query(cur, ent_id)
+    relationships = create_relationships(records)
+
+    # Return the data as a JSON response.
+    response_json = {
+        'relationships': relationships,
+    }
+    return response_json
+
+
+
+
+##############################################################################
+#   Func    query
+#   Desc    Performs an SQL query on the database using the given arguments.
+#   Params  <MySQLCursor> cur: Cursor of the database connection.
+#           <int> ent_id: ID of the entity.
+#   Ret     <list>: List of records that include the entity.
+##############################################################################
+def query(cur, ent_id):
     # Get all relationships that includes this ID, as well as the info for the
     # two entities included in those relationship.
     cur.execute("""
@@ -71,11 +106,23 @@ def root():
         ent_id,
     ])
 
+    # Return all of the records.
+    return cur.fetchall()
+
+
+
+##############################################################################
+#   Func    create_relationships
+#   Desc    Organizes records from a query into a listing of relationships.
+#   Params  <list> records: List of records from the query result.
+#   Ret     <dict>: All of the relationships for the records.
+##############################################################################
+def create_relationships(records):
     # Loop through the records and create relationships from them.
     relationships = {}
     for (source_id, source_name, source_type, destination_id, \
     destination_name, destination_type, relationship_type, patient_id, \
-    patient_type, contact_phone, instructions) in cur.fetchall():
+    patient_type, contact_phone, instructions) in records:
         # Check if this relationship type isn't yet in the response.
         if relationship_type not in relationships:
             # Create the type.
@@ -121,8 +168,5 @@ def root():
                 ],
             })
 
-    # Return the data as a JSON response.
-    response_json = {
-        'relationships': relationships,
-    }
-    return flask.jsonify(response_json)
+    # Return the relationships.
+    return relationships
