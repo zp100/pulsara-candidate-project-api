@@ -122,8 +122,11 @@ def query(cur, ent_id, relationship_types=None, entity_types=None, associativity
         # Add to the query filters.
         query += ' and REL.relationship_type in ('
         for rt in relationship_types:
-            query += '%s, '
-            query_args.append(rt)
+            if isinstance(rt, str):
+                query += '%s, '
+                query_args.append(rt)
+
+        # Remove the trailing comma and add the closing parenthesis.
         query = query[:-2] + ')'
 
     # Check if associativity was provided.
