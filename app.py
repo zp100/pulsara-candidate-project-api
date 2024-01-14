@@ -12,6 +12,12 @@ import mysql.connector as sql
 # App setup.
 app = flask.Flask(__name__)
 
+# Database credentials.
+SQL_HOST = 'http://127.0.0.1'
+SQL_USER = 'root'
+SQL_PASSWORD = 'password'
+SQL_DATABASE = 'main'
+
 
 
 ##############################################################################
@@ -27,10 +33,10 @@ def root():
     try:
         # Connect to the MySQL database.
         conn = sql.connect(
-            host='localhost',
-            user='root',
-            password='password',
-            database='main',
+            host=SQL_HOST,
+            user=SQL_USER,
+            password=SQL_PASSWORD,
+            database=SQL_DATABASE,
         )
         cur = conn.cursor()
     except sql.errors.DatabaseError:

@@ -1,9 +1,15 @@
 # pulsara-candidate-project-api
 Back-end candidate project for Pulsara's "Full Stack Software Engineer" position.
 
+### Design Assumptions
+-   For simplicity, the API is fully public with no sign-in or API key required.
+-   It's only designed for the provided database, so the host/username/password for it are hard-coded.
+-   As an API, no UI is provided and the query options must be included in the HTTP requests.
+
 ## Setup
 
 ### Requirements
+-   Access to the Docker image
 -   Python 3.10 or later
 -   `pip` and `git`
 
