@@ -13,7 +13,7 @@ import mysql.connector as sql
 app = flask.Flask(__name__)
 
 # Database credentials.
-SQL_HOST = 'http://127.0.0.1'
+SQL_HOST = 'localhost'
 SQL_USER = 'root'
 SQL_PASSWORD = 'password'
 SQL_DATABASE = 'main'
@@ -47,7 +47,8 @@ def root():
         return flask.jsonify(response_json), 503
 
     # Check if the ID wasn't provided in the request.
-    if ('id' not in flask.request.json) or not (isinstance(flask.request.json['id'], int)):
+    if 'id' not in flask.request.json \
+    or not isinstance(flask.request.json['id'], int):
         # Error.
         response_json = {
             'error': 'Invalid request JSON.',
@@ -68,11 +69,19 @@ def root():
 #   Ret     <dict>: Response's JSON data.
 ##############################################################################
 def process_request(cur, request_json):
-    # Get the ID from the request.
+    # Get the arguments from the request.
     ent_id = request_json['id']
+    relationship_types = (request_json['relationship_types'] \
+        if 'relationship_types' in request_json else None)
+    entity_types = (request_json['entity_types'] \
+        if 'entity_types' in request_json else None)
+    associativity = (request_json['associativity'] \
+        if 'associativity' in request_json else None)
 
-    # Get the data from the database, and organize the records into relationships.
-    records = query(cur, ent_id)
+    # Get the data from the database, and organize the records into
+    # relationships.
+    records = query(cur, ent_id, relationship_types, entity_types, \
+        associativity)
     relationships = create_relationships(records)
 
     # Return the data as a JSON response.
@@ -89,12 +98,21 @@ def process_request(cur, request_json):
 #   Desc    Performs an SQL query on the database using the given arguments.
 #   Params  <MySQLCursor> cur: Cursor of the database connection.
 #           <int> ent_id: ID of the entity.
-#   Ret     <list>: List of records that include the entity.
+#           optional <list> relationship_types: List of valid relationship
+#               types to filter by.
+#           optional <list> entity_types: List of valid entity types (for the
+#               other entity in the relationship) to filter by.
+#           optional <str> associativity: Can be either 'source' to only
+#               allow relationships where the subject entity is the source or
+#               can be 'destination' to only allow relationships where the
+#               subject entity is the destination.
+#   Ret     <list>: List of records that include the entity and match the
+#               filters.
 ##############################################################################
-def query(cur, ent_id):
-    # Get all relationships that includes this ID, as well as the info for the
-    # two entities included in those relationship.
-    cur.execute("""
+def query(cur, ent_id, relationship_types=None, entity_types=None, \
+associativity=None):
+    # Start with a query that gets all of the necessary fields.
+    query = """
         select SRC.id, SRC.name, SRC.entity_type, DEST.id, DEST.name,
             DEST.entity_type, REL.relationship_type,
             REL.id, REL.patient_type, REL.contact_phone, REL.instructions
@@ -105,12 +123,44 @@ def query(cur, ent_id):
         left join TBL_ENTITIES as DEST on (
             REL.destination_entity_id = DEST.id
         )
-        where REL.source_entity_id = %s
-        or REL.destination_entity_id = %s;
-    """, [
-        ent_id,
-        ent_id,
-    ])
+        where true
+    """
+    query_args = []
+
+    # Check if relationship types were provided.
+    if isinstance(relationship_types, list):
+        # Add to the query filters.
+        query += ' and REL.relationship_type in ('
+        for rt in relationship_types:
+            query += '%s, '
+            query_args.append(rt)
+        query = query[:-2] + ')'
+
+    # Check if associativity was provided.
+    if isinstance(associativity, str) \
+    and associativity == 'source':
+        # Only allow source.
+        query += ' and REL.source_entity_id = %s'
+        query_args.append(ent_id)
+    elif isinstance(associativity, str) \
+    and associativity == 'destination':
+        # Only allow destination.
+        query += ' and REL.destination_entity_id = %s'
+        query_args.append(ent_id)
+    else:
+        # Allow either.
+        query += """ and (
+            REL.source_entity_id = %s
+            or REL.destination_entity_id = %s
+        )"""
+        query_args.append(ent_id)
+        query_args.append(ent_id)
+
+    # Add ending semicolon.
+    query += ';'
+
+    # Execute the query.
+    cur.execute(query, query_args)
 
     # Return all of the records.
     return cur.fetchall()
