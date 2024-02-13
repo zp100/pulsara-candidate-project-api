@@ -86,7 +86,6 @@ def process_request(cur, request_json):
 
 
 
-
 ######################################################################################################################
 #   Func    query
 #   Desc    Performs an SQL query on the database using the given arguments.

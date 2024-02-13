@@ -1,0 +1,38 @@
+{
+    "relationships": {
+        "TRANSFER": [
+            {
+                "destination": {
+                    "id": 2,
+                    "name": "Hospital - Metro Central",
+                    "type": "HOSPITAL"
+                },
+                "patient_types": [
+                    {
+                        "contact_phone": "555-555-5555xtf1-2-1",
+                        "id": 46,
+                        "instructions": "Wait for Pulsara call for confirmation after request",
+                        "type": "STEMI"
+                    },
+                    {
+                        "contact_phone": "555-555-5555xtf1-2-2",
+                        "id": 47,
+                        "instructions": "Wait for Pulsara call for confirmation after request",
+                        "type": "STROKE"
+                    },
+                    {
+                        "contact_phone": "555-555-5555xtf1-2-3",
+                        "id": 48,
+                        "instructions": "a",
+                        "type": "GENERAL"
+                    }
+                ],
+                "source": {
+                    "id": 1,
+                    "name": "Hospital - Rural West",
+                    "type": "HOSPITAL"
+                }
+            }
+        ]
+    }
+}
